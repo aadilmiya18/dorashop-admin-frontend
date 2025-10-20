@@ -40,6 +40,11 @@ const routes = [
                 component: () => import('pages/Categories/CategoriesPage.vue')
             },
             {
+                path: '/categories/:id/edit',
+                name: 'CategoriesEdit',
+                component: () => import('pages/Categories/CategoriesEditPage.vue'),
+            },
+            {
                 path: '/categories/create',
                 name: 'CategoriesCreate',
                 component: () => import('pages/Categories/CategoriesCreatePage.vue'),
