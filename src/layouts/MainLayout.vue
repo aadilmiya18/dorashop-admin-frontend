@@ -69,9 +69,10 @@
       </q-list>
     </q-drawer>
 
-    <!-- PAGE CONTAINER -->
-    <q-page-container>
-      <router-view/>
+    <q-page-container class="tw-bg-gray-100 tw-min-h-screen">
+      <q-pull-to-refresh @refresh="refresh">
+      <router-view />
+      </q-pull-to-refresh>
     </q-page-container>
 
   </q-layout>
@@ -118,6 +119,10 @@ function goToRoute(link) {
   if (link.route && link.route.name) {
     router.push(link.route)
   }
+}
+
+const refresh = () => {
+window.location.reload(true)
 }
 </script>
 

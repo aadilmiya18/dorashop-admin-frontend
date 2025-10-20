@@ -1,5 +1,5 @@
 import {defineStore} from "pinia";
-import {api} from "boot/axios.js";
+import {publicApi, authApi} from "boot/axios.js";
 import {useQuasar} from "quasar";
 import {ref} from "vue";
 import {useRouter} from "vue-router";
@@ -11,32 +11,22 @@ export const useAuthStore = defineStore('authStore', () => {
     const accessToken = ref(localStorage.getItem('access_token') || '');
     const login = async (payload) => {
         try {
-            const res = await api.post('auth/login', payload)
+            const res = await publicApi.post('auth/login', payload)
             accessToken.value = res.data.token
             localStorage.setItem('access_token', accessToken.value);
-            console.log('res',res)
-            if (accessToken.value) {
-                if (res.status === 200) {
-                    $q.notify({
-                        message: 'Login Successfully',
-                        color: "positive"
-                    })
-                    return true
-                }
-            }
+            currentUser.value = res.data.user || {};
+
+            $q.notify({ message: 'Login Successfully', color: "positive" });
+            return true
         } catch (e) {
-            $q.notify({
-                message: `Failed to login: ${e.response?.data?.message || e.message}`,
-                color: "negative"
-            })
+            $q.notify({ message: `Failed to login: ${e.response?.data?.message || e.message}`, color: "negative" });
             return false
         }
-
     }
 
     const register = async (payload) => {
         try {
-            const res = await api.post('auth/register', payload)
+            const res = await publicApi.post('auth/register', payload)
             accessToken.value = res.data.token
             localStorage.setItem('access_token', accessToken.value);
             if (accessToken.value) {
@@ -61,13 +51,10 @@ export const useAuthStore = defineStore('authStore', () => {
     }
 
     const logout = async () => {
-        await api.post('auth/logout','',{
-            headers: {Authorization: `Bearer ${accessToken.value}` }
-        });
+        await authApi.post('auth/logout');
         accessToken.value = '';
         currentUser.value = null;
         localStorage.removeItem('access_token');
-        delete api.defaults.headers.common['Authorization'];
         router.push('/login');
     };
 
@@ -75,14 +62,13 @@ export const useAuthStore = defineStore('authStore', () => {
         if (!accessToken.value) return false;
 
         try{
-            const res = await api.get('auth/me',{
-                headers: {Authorization: `Bearer ${accessToken.value}` }
-            });
+            const res = await authApi.get('auth/me');
             currentUser.value = res.data.user
             return true
         }
         catch (e)
         {
+            console.error(e)
             await logout();
             return false;
         }
