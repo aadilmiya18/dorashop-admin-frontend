@@ -3,15 +3,16 @@
 
     <q-header elevated class="bg-gradient-to-r from-primary to-secondary text-white">
       <q-toolbar class="q-px-md">
-        <q-btn flat dense round icon="mdi-menu" aria-label="Menu" @click="toggleLeftDrawer" />
+        <q-btn flat dense round icon="mdi-menu" aria-label="Menu" @click="toggleLeftDrawer"/>
 
         <q-toolbar-title class="text-weight-medium text-h6 q-ml-md">
           Dora Shop Admin
         </q-toolbar-title>
 
         <div class="q-gutter-sm q-ml-auto flex items-center">
-          <q-btn flat round dense icon="mdi-bell" class="hover:bg-primary/20"/>
-          <q-btn flat round dense icon="mdi-account-circle" class="hover:bg-primary/20"/>
+          <q-btn flat round dense icon="mdi-logout" @click="authStore.logout"/>
+          <q-btn flat round dense icon="mdi-bell"/>
+          <q-btn flat round dense icon="mdi-account-circle"/>
         </div>
       </q-toolbar>
     </q-header>
@@ -77,28 +78,30 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import {ref} from 'vue'
+import {useRouter, useRoute} from 'vue-router'
+import {useAuthStore} from "stores/authStore.js";
 
 const router = useRouter()
 const route = useRoute()
+const authStore = useAuthStore();
 
 const linksList = ref([
-  { title: 'Dashboard', icon: 'mdi-view-dashboard', route: { name: 'Home' } },
-  { title: 'Products', icon: 'mdi-package-variant', route: { name: 'Products' } },
-  { title: 'Categories', icon: 'mdi-shape-outline', route: { name: 'Categories' } },
-  { title: 'Brands', icon: 'mdi-tag-multiple', route: { name: 'Brands' } },
-  { title: 'Orders', icon: 'mdi-cart', route: { name: 'Orders' } },
-  { title: 'Coupons', icon: 'mdi-ticket-percent', route: { name: 'Coupons' } },
-  { title: 'Users', icon: 'mdi-account-multiple', route: { name: 'Users' } },
-  { title: 'Settings', icon: 'mdi-cog', route: { name: 'Settings' } },
-  { title: 'Shipping', icon: 'mdi-truck', route: { name: 'Shipping' } },
-  { title: 'Reports', icon: 'mdi-file-chart', route: { name: 'Reports' } },
-  { title: 'Payment Methods', icon: 'mdi-credit-card', route: { name: 'PaymentMethods' } },
-  { title: 'Notifications', icon: 'mdi-bell-ring', route: { name: 'Notifications' } },
-  { title: 'SEO Tools', icon: 'mdi-magnify', route: { name: 'SEOTools' } },
-  { title: 'Marketing', icon: 'mdi-bullhorn', route: { name: 'Marketing' } },
-  { title: 'Logs', icon: 'mdi-file-document', route: { name: 'Logs' } },
+  {title: 'Dashboard', icon: 'mdi-view-dashboard', route: {name: 'Home'}},
+  {title: 'Products', icon: 'mdi-package-variant', route: {name: 'Products'}},
+  {title: 'Categories', icon: 'mdi-shape-outline', route: {name: 'Categories'}},
+  {title: 'Brands', icon: 'mdi-tag-multiple', route: {name: 'Brands'}},
+  {title: 'Orders', icon: 'mdi-cart', route: {name: 'Orders'}},
+  {title: 'Coupons', icon: 'mdi-ticket-percent', route: {name: 'Coupons'}},
+  {title: 'Users', icon: 'mdi-account-multiple', route: {name: 'Users'}},
+  {title: 'Settings', icon: 'mdi-cog', route: {name: 'Settings'}},
+  {title: 'Shipping', icon: 'mdi-truck', route: {name: 'Shipping'}},
+  {title: 'Reports', icon: 'mdi-file-chart', route: {name: 'Reports'}},
+  {title: 'Payment Methods', icon: 'mdi-credit-card', route: {name: 'PaymentMethods'}},
+  {title: 'Notifications', icon: 'mdi-bell-ring', route: {name: 'Notifications'}},
+  {title: 'SEO Tools', icon: 'mdi-magnify', route: {name: 'SEOTools'}},
+  {title: 'Marketing', icon: 'mdi-bullhorn', route: {name: 'Marketing'}},
+  {title: 'Logs', icon: 'mdi-file-document', route: {name: 'Logs'}},
 ])
 
 const leftDrawerOpen = ref(false)
@@ -122,6 +125,7 @@ function goToRoute(link) {
 .bg-gradient-to-r {
   background: linear-gradient(90deg, var(--q-primary), var(--q-secondary));
 }
+
 .rounded-borders {
   border-radius: 12px;
 }
