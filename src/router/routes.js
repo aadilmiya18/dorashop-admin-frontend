@@ -20,6 +20,11 @@ const routes = [
                 component: () => import('pages/Products/ProductsCreatePage.vue'),
             },
             {
+                path: '/products/:id/edit',
+                name: 'ProductsEdit',
+                component: () => import('pages/Products/ProductsEditPage.vue'),
+            },
+            {
                 path: '/brands',
                 name: 'Brands',
                 component: () => import('pages/Brands/BrandsPage.vue')

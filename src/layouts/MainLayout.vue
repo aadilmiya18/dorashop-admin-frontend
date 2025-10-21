@@ -26,7 +26,7 @@
     >
       <div class="q-pa-md text-center bg-white shadow-2 rounded-b-lg">
         <q-avatar size="80px" class="shadow-3">
-          <img src="../assets/logo.png"/>
+          <q-img src="../assets/logo.png"/>
         </q-avatar>
         <div class="text-h5 text-weight-bold q-mt-sm text-primary">Dora Shop</div>
         <div class="text-caption text-grey-7">Admin Dashboard</div>

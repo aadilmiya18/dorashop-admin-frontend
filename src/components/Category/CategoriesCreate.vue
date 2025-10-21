@@ -143,7 +143,7 @@ const formData = ref({
   description: "",
   status: 1,
   image: null,
-  parentId: null,
+  parentId: '',
 });
 
 const fileInput = ref(null);
@@ -193,7 +193,7 @@ const submitData = async () => {
   const payload = new FormData();
   payload.append("name", formData.value.name);
   payload.append("slug", formData.value.slug)
-  payload.append("parent_id", formData.value.parent_id)
+  payload.append("parent_id", formData.value.parent_id || '')
   payload.append("description", formData.value.description)
   payload.append("status", formData.value.status)
   if (formData.value.image) payload.append("image", formData.value.image)
@@ -212,7 +212,7 @@ const submitData = async () => {
       description: "",
       status: 1,
       image: null,
-      parent_id: null
+      parent_id: ''
     };
     imagePreview.value = null;
 

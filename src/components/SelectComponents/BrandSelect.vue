@@ -1,10 +1,10 @@
 <template>
   <q-select
       v-model="computedModelValue"
-      label="Select Category"
+      label="Select Brand"
       outlined
       use-input
-      :options="categoryStore.categories"
+      :options="brandStore.brands"
       option-label="name"
       option-value="id"
       emit-value
@@ -13,7 +13,7 @@
       @clear="computedModelValue = []"
   >
     <template #prepend>
-      <q-icon name="mdi-shape-plus-outline" color="primary"/>
+      <q-icon name="mdi-domain" color="primary"/>
 
     </template>
   </q-select>
@@ -22,6 +22,7 @@
 <script setup>
 import {useCategoryStore} from "stores/categoryStore.js";
 import {computed, onMounted} from "vue";
+import {useBrandStore} from "stores/brandStore.js";
 
 const props = defineProps({
   modelValue: {
@@ -38,7 +39,7 @@ const computedModelValue = computed({
   }
 })
 
-const categoryStore = useCategoryStore();
+const brandStore = useBrandStore();
 
-onMounted(categoryStore.fetchCategories)
+onMounted(brandStore.fetchBrands)
 </script>
