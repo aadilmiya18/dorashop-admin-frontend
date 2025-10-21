@@ -8,7 +8,64 @@
       :computed-columns="[{name: 'status'},{name: 'media'}]"
       :loading="loading"
       @delete_item="deleteBrand"
+      @update:pagination="onPaginationChange"
+      :pagination="tableParams"
   >
+    <template #top-left>
+      <div class="tw-flex tw-gap-4">
+      <div>
+        <q-input
+            v-model="tableParams.filters.query"
+            outlined
+            clearable
+            class="tw-w-[350px]"
+            label="Search by name or slug"
+            filled
+            debounce="400"
+            @update:model-value="onSearch"
+        >
+          <template #prepend>
+            <q-icon name="mdi-magnify" color="primary" />
+          </template>
+        </q-input>
+      </div>
+      <div>
+        <q-select
+            v-model="tableParams.filters.status"
+            outlined
+            filled
+            class="tw-w-[200px]"
+            label="Select Status"
+            :options="[
+                {label: 'Active',value: 1},
+                {label: 'Inactive',value: 0},
+            ]"
+            emit-value
+            map-options
+            clearable
+            @update:model-value="fetchBrands"
+        />
+      </div>
+      </div>
+
+    </template>
+
+    <template #top-right>
+      <q-btn
+          icon="mdi-filter-off"
+          color="red"
+          round
+          @click="clearFilter"
+      />
+      <q-btn
+          icon="mdi-refresh"
+          color="primary"
+          round
+          class="tw-mx-3"
+          @click="refresh"
+      />
+    </template>
+
     <template #body-cell-status="props">
       <q-td :props="props">
         <q-badge
@@ -33,11 +90,11 @@
             >
               <template v-slot:error>
                 <div class="tw-flex tw-items-center tw-justify-center tw-h-full tw-bg-gray-100">
-                  <q-icon name="mdi-image-off" size="24px" color="grey-5" />
+                  <q-icon name="mdi-image-off" size="24px" color="grey-5"/>
                 </div>
               </template>
               <template v-slot:loading>
-                <q-spinner color="primary" size="20px" />
+                <q-spinner color="primary" size="20px"/>
               </template>
             </q-img>
           </q-avatar>
@@ -56,7 +113,7 @@ import {useQuasar} from "quasar";
 
 const brandStore = useBrandStore();
 const {fetchBrands, deleteItem} = brandStore
-const {brands} = storeToRefs(brandStore)
+const {brands, tableParams} = storeToRefs(brandStore)
 const $q = useQuasar()
 const loading = ref(false)
 
@@ -169,6 +226,51 @@ const deleteBrand = async (id) => {
       icon: 'mdi-alert-circle',
       position: 'top'
     })
+  }
+}
+
+const onSearch = async () => {
+  loading.value = true
+  try {
+    tableParams.value.page = 1
+    await fetchBrands()
+  } finally {
+    loading.value = false
+  }
+}
+
+const onPaginationChange = async (newPagination) => {
+  loading.value = true
+  try {
+    tableParams.value.page = newPagination.page
+    tableParams.value.rowsPerPage = newPagination.rowsPerPage
+    tableParams.value.sortBy = newPagination.sortBy
+    tableParams.value.descending = newPagination.descending
+
+    await fetchBrands()
+  } finally {
+    loading.value = false
+  }
+}
+
+const clearFilter = () => {
+  tableParams.value = {
+    page: 1,
+    rowsPerPage: 50,
+    sortBy: 'id',
+    descending: true,
+    filters: {},
+    total: 0,
+  }
+  fetchBrands()
+}
+
+const refresh = async () => {
+  loading.value = true
+  try{
+    await fetchBrands()
+  }finally {
+    loading.value = false
   }
 }
 </script>

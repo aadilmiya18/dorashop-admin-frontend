@@ -7,30 +7,37 @@
           :columns="mergedColumns"
           :loading="loading"
           row-key="id"
-          :rows-per-page-options="[10, 25, 50, 100]"
-          :pagination="{ rowsPerPage: 10 }"
+          v-model:pagination="localPagination"
+          :rows-number="pagination.total"
+          @request="onRequest"
           flat
           class="modern-table"
       >
         <template #top>
           <div class="tw-w-full tw-flex tw-items-center tw-justify-between">
             <div>
-              <div class="text-h5 tw-font-bold tw-text-gray-800">{{ title }}</div>
+              <div class="text-h5 tw-font-bold tw-text-gray-800 tw-mb-5">{{ title }}</div>
+              <slot name="top-left"></slot>
             </div>
-            <q-btn
-                label="Create New"
-                icon="mdi-plus"
-                color="primary"
-                unelevated
-                no-caps
-                class="tw-px-6"
-                @click="$router.push({ name: createPageUrl })"
-            />
+            <slot name="top-middle"></slot>
+            <div>
+              <slot name="top-right"></slot>
+              <q-btn
+                  label="Create New"
+                  icon="mdi-plus"
+                  color="primary"
+                  unelevated
+                  no-caps
+                  class="tw-px-6"
+                  @click="$router.push({ name: createPageUrl })"
+              />
+              <slot name="top-right-last"></slot>
+            </div>
           </div>
         </template>
 
         <template v-for="(_, name) in $slots" #[name]="slotProps">
-          <slot :name="name" v-bind="slotProps" />
+          <slot :name="name" v-bind="slotProps"/>
         </template>
 
         <template #body-cell-index="props">
@@ -73,7 +80,7 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import {computed, ref, watch} from 'vue'
 import {useRouter} from "vue-router";
 
 const props = defineProps({
@@ -104,8 +111,49 @@ const props = defineProps({
   loading: {
     type: Boolean,
     default: false
+  },
+  pagination: {
+    type: Object,
+    default: () => ({
+      page: 1,
+      rowsPerPage: 50,
+      sortBy: 'id',
+      descending: true,
+      total: 0
+    })
   }
 })
+
+const emit = defineEmits(['delete_item', 'update:pagination']);
+
+const localPagination = ref({
+  page: props.pagination.page,
+  rowsPerPage: props.pagination.rowsPerPage,
+  sortBy: props.pagination.sortBy,
+  descending: props.pagination.descending,
+  rowsNumber: props.pagination.total
+})
+
+watch(() => props.pagination, (newVal) => {
+  localPagination.value = {
+    page: newVal.page,
+    rowsPerPage: newVal.rowsPerPage,
+    sortBy: newVal.sortBy,
+    descending: newVal.descending,
+    rowsNumber: newVal.total
+  }
+}, { deep: true })
+
+const onRequest = (requestProps) => {
+  const { page, rowsPerPage, sortBy, descending } = requestProps.pagination
+
+  emit('update:pagination', {
+    page,
+    rowsPerPage,
+    sortBy,
+    descending
+  })
+}
 
 const mergedColumns = computed(() => {
   const all = [...props.columns]
@@ -125,18 +173,17 @@ const mergedColumns = computed(() => {
 const rowsWithIndex = computed(() =>
     props.rows.map((row, index) => ({
       ...row,
-      index: index + 1
+      index: (localPagination.value.page - 1) * localPagination.value.rowsPerPage + index + 1
     }))
 )
 
 const router = useRouter();
 const editItem = (row) => {
-  router.push({name: props.editPageUrl, params:{id:row.id}})
+  router.push({name: props.editPageUrl, params: {id: row.id}})
 }
 
-const emit = defineEmits(['delete_item']);
 const deleteItem = (row) => {
-  emit('delete_item',row.id);
+  emit('delete_item', row.id);
 }
 </script>
 

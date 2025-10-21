@@ -2,16 +2,31 @@ import {defineStore} from "pinia";
 import {authApi} from "boot/axios.js";
 import {ref} from "vue";
 
-export const useBrandStore = defineStore('brandStore',()=> {
+export const useBrandStore = defineStore('brandStore', () => {
     const brands = ref([])
+    const tableParams = ref({
+        page: 1,
+        rowsPerPage: 50,
+        sortBy: 'id',
+        descending: true,
+        filters: {},
+        total: 0,
+    })
 
     const fetchBrands = async () => {
         try {
-            const response = await authApi.get('brands')
+            const response = await authApi.get('brands', {
+                params: {
+                    page: tableParams.value.page,
+                    rowsPerPage: tableParams.value.rowsPerPage,
+                    sortBy: tableParams.value.sortBy,
+                    descending: tableParams.value.descending,
+                    filters: JSON.stringify(tableParams.value.filters)
+                }
+            })
             brands.value = response.data.data
-            console.log('brands',response.data.data)
-        }
-        catch (e) {
+            tableParams.value.total = response.data?.meta?.total ?? 0
+        } catch (e) {
             console.error(e)
             throw e;
         }
@@ -25,8 +40,7 @@ export const useBrandStore = defineStore('brandStore',()=> {
                 }
             })
             return response.data
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e)
             throw e.response?.data?.message || 'Failed to create brand';
         }
@@ -34,10 +48,9 @@ export const useBrandStore = defineStore('brandStore',()=> {
 
     const fetchBrandsById = async (id) => {
         try {
-            const response = await authApi.get('brands/'+id)
+            const response = await authApi.get('brands/' + id)
             return response.data
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e)
             throw e.response?.data?.message || 'Failed to fetch brand';
         }
@@ -47,14 +60,13 @@ export const useBrandStore = defineStore('brandStore',()=> {
         try {
             payload.append('_method', 'PUT')
 
-            const response = await authApi.post('brands/'+id, payload, {
+            const response = await authApi.post('brands/' + id, payload, {
                 headers: {
                     "Content-Type": "multipart/form-data"
                 }
             })
             return response.data
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e)
             throw e.response?.data?.message || 'Failed to update brand';
         }
@@ -62,10 +74,9 @@ export const useBrandStore = defineStore('brandStore',()=> {
     const deleteItem = async (id) => {
         try {
 
-            const response = await authApi.delete('brands/'+id)
+            const response = await authApi.delete('brands/' + id)
             return response.data
-        }
-        catch (e) {
+        } catch (e) {
             console.error(e)
             throw e.response?.data?.message || 'Failed to update brand';
         }
@@ -77,6 +88,7 @@ export const useBrandStore = defineStore('brandStore',()=> {
         submitBrandData,
         fetchBrandsById,
         updateItem,
-        deleteItem
+        deleteItem,
+        tableParams
     }
 })

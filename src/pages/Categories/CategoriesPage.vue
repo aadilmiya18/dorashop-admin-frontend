@@ -8,7 +8,65 @@
       :computed-columns="[{name: 'status'},{name: 'media'}]"
       :loading="loading"
       @delete_item="deleteCategory"
+      @update:pagination="onPaginationChange"
+      :pagination="tableParams"
   >
+
+    <template #top-left>
+      <div class="tw-flex tw-gap-4">
+        <div>
+          <q-input
+              v-model="tableParams.filters.query"
+              outlined
+              clearable
+              class="tw-w-[350px]"
+              label="Search by name or slug"
+              filled
+              debounce="400"
+              @update:model-value="onSearch"
+          >
+            <template #prepend>
+              <q-icon name="mdi-magnify" color="primary" />
+            </template>
+          </q-input>
+        </div>
+        <div>
+          <q-select
+              v-model="tableParams.filters.status"
+              outlined
+              filled
+              class="tw-w-[200px]"
+              label="Select Status"
+              :options="[
+                {label: 'Active',value: 1},
+                {label: 'Inactive',value: 0},
+            ]"
+              emit-value
+              map-options
+              clearable
+              @update:model-value="fetchCategories"
+          />
+        </div>
+      </div>
+
+    </template>
+
+    <template #top-right>
+      <q-btn
+          icon="mdi-filter-off"
+          color="red"
+          round
+          @click="clearFilter"
+      />
+      <q-btn
+          icon="mdi-refresh"
+          color="primary"
+          round
+          class="tw-mx-3"
+          @click="refresh"
+      />
+    </template>
+
     <template #body-cell-status="props">
       <q-td :props="props">
         <q-badge
@@ -56,7 +114,7 @@ import {useQuasar} from "quasar";
 
 const CategoryStore = useCategoryStore();
 const {fetchCategories, deleteItem} = CategoryStore
-const {categories} = storeToRefs(CategoryStore)
+const {categories, tableParams} = storeToRefs(CategoryStore)
 const $q = useQuasar()
 const loading = ref(false)
 
@@ -169,6 +227,51 @@ const deleteCategory = async (id) => {
       icon: 'mdi-alert-circle',
       position: 'top'
     })
+  }
+}
+
+const onSearch = async () => {
+  loading.value = true
+  try {
+    tableParams.value.page = 1
+    await fetchCategories()
+  } finally {
+    loading.value = false
+  }
+}
+
+const onPaginationChange = async (newPagination) => {
+  loading.value = true
+  try {
+    tableParams.value.page = newPagination.page
+    tableParams.value.rowsPerPage = newPagination.rowsPerPage
+    tableParams.value.sortBy = newPagination.sortBy
+    tableParams.value.descending = newPagination.descending
+
+    await fetchCategories()
+  } finally {
+    loading.value = false
+  }
+}
+
+const clearFilter = () => {
+  tableParams.value = {
+    page: 1,
+    rowsPerPage: 50,
+    sortBy: 'id',
+    descending: true,
+    filters: {},
+    total: 0,
+  }
+  fetchCategories()
+}
+
+const refresh = async () => {
+  loading.value = true
+  try{
+    await fetchCategories()
+  }finally {
+    loading.value = false
   }
 }
 </script>

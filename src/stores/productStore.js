@@ -4,11 +4,28 @@ import {ref} from "vue";
 
 export const useProductStore = defineStore('productStore',()=> {
     const products = ref([])
+    const tableParams = ref({
+        page: 1,
+        rowsPerPage: 50,
+        sortBy: 'id',
+        descending: true,
+        filters: {},
+        total: 0,
+    })
 
     const fetchProducts = async () => {
         try {
-            const response = await authApi.get('products')
+            const response = await authApi.get('products', {
+                params: {
+                    page: tableParams.value.page,
+                    rowsPerPage: tableParams.value.rowsPerPage,
+                    sortBy: tableParams.value.sortBy,
+                    descending: tableParams.value.descending,
+                    filters: JSON.stringify(tableParams.value.filters)
+                }
+            })
             products.value = response.data.data
+            tableParams.value.total = response.data?.meta?.total ?? 0
         }
         catch (e) {
             console.error(e)
@@ -76,6 +93,7 @@ export const useProductStore = defineStore('productStore',()=> {
         submitProductData,
         fetchProductById,
         updateProduct,
-        deleteProduct
+        deleteProduct,
+        tableParams
     }
 })
