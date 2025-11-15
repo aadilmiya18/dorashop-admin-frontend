@@ -23,6 +23,7 @@
             <div>
               <slot name="top-right"></slot>
               <q-btn
+                  v-if="!hideCreateButton"
                   label="Create New"
                   icon="mdi-plus"
                   color="primary"
@@ -121,6 +122,10 @@ const props = defineProps({
       descending: true,
       total: 0
     })
+  },
+  hideCreateButton: {
+    type: Boolean,
+    default: false
   }
 })
 
